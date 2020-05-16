@@ -1,0 +1,2 @@
+# scrapito
+[WIP] Scrapping tool
