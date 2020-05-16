@@ -1,0 +1,28 @@
+{
+  "name": "scrapito",
+  "version": "0.0.1",
+  "description": "[WIP] Scrapping tool",
+  "main": "index.js",
+  "scripts": {
+    "v": "tools/version.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pulsar-inc/scrapito.git"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "python3 tools/commit-lint.py $HUSKY_GIT_PARAMS"
+    }
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pulsar-inc/scrapito/issues"
+  },
+  "homepage": "https://github.com/pulsar-inc/scrapito#readme",
+  "devDependencies": {
+    "husky": "^4.2.5"
+  }
+}

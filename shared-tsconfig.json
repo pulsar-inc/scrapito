@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "es2017",
+      "esnext.asynciterable"
+    ],
+    "outDir": "shared-lib",
+    "target": "es3",
+    "sourceMap": true,
+    "module": "commonjs",
+    "noImplicitReturns": false,
+    "allowSyntheticDefaultImports": true
+  },
+  "compileOnSave": true,
+  "include": ["shared"]
+}

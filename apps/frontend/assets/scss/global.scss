@@ -1,0 +1,117 @@
+//
+// Themes
+//
+
+#container.pastel-theme {
+  --bg: #fce4ec;
+  --bg-2: #ff9faf;
+  --bg-3: #ff8095;
+  
+  --fg: #000000;
+  --fg-2: #161616;
+  --fg-3: #3f3f3f;
+
+  --primary: #ff4548;
+  --primary-light: #ff7c74;
+  --primary-dark: #c40020;
+
+  --green-1: #007a6e;
+  --green-2: #005f56;
+
+  --purple-1: #8435ff;
+  --purple-2: #673ab7;
+  --purple-3: #320b86;
+}
+
+#container.dark-theme {
+  --bg: #101015;
+  --bg-2: #36363b;
+  --bg-3: #5f5f68;
+  
+  --fg: #ffffff;
+  --fg-2: #cccccc;
+  --fg-3: #b3b3b3;
+
+  --primary: #ff4548;
+  --primary-light: #ff7c74;
+  --primary-dark: #c40020;
+
+  --green-1: #00eaa9;
+  --green-2: #00c58e;
+
+  --purple-1: #9a67ea;
+  --purple-2: #673ab7;
+  --purple-3: #320b86;
+}
+
+//
+// Default rules
+//
+
+html,
+body,
+#__layout,
+#__nuxt,
+#container {
+  -webkit-font-smoothing: antialiased;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+
+  margin: 0;
+  padding: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  color: $fg;
+  background-color: $bg;
+  font-family: $default-font;
+}
+
+*,
+*:before,
+*:after {
+  transition: color .7s ease-out, background-color .7s ease-out;
+  font-family: $default-font;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+*::selection {
+  background-color: $purple-1;
+  color: $white;
+}
+
+*:focus {
+  outline: 0;
+}
+
+a,
+li {
+  text-decoration: none;
+  list-style: none;
+}
+
+svg,
+i,
+img,
+.noselect,
+.menu-tabs,
+.menu-item {
+  -webkit-tap-highlight-color: transparent; /* Android */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                            supported by Chrome, Opera and Firefox */
+}
+
+button {
+  border: none;
+}

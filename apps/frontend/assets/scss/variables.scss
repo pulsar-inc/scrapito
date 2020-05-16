@@ -1,0 +1,37 @@
+//
+// Variables
+// 
+// Warning, this file is imported in any other scss files
+// Do not put anything else than variables here
+//
+
+$primary: var(--primary);
+$primary-light: var(--primary-light);
+$primary-dark: var(--primary-dark);
+
+$purple-1: var(--purple-1);
+$purple-2: var(--purple-2);
+$purple-3: var(--purple-3);
+
+$yellow-1: #fff263;
+$yellow-2: #fbc02d;
+
+$green-1: var(--green-1);
+$green-2: var(--green-2);
+
+$white: #ffffff;
+$black: #000000;
+$grey: #d1d1d2;
+
+$fg: var(--fg);
+$fg-2: var(--fg-2);
+$fg-3: var(--fg-3);
+
+$bg: var(--bg);
+$bg-2: var(--bg-2);
+$bg-3: var(--bg-3);
+
+$radius: 10px;
+$radius-full: 99999px;
+
+$default-font: "Muli", -apple-system, "Ubuntu", "Arial", "Helvetica", sans-serif;
