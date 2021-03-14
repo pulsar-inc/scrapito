@@ -1,0 +1,14 @@
+name: ExampleTemplate
+version: 1
+
+pipelines:
+  - name: stage1
+    url: https://github.com/pulsar-inc/scrapito
+    selector: 'a[data-tab-item="i2pull-requests-tab"]'
+    transform: '$href'
+
+    next:
+      - name: stage2
+        url: 0@stage1
+        selector: 'a[data-hovercard-type="pull_request"]'
+        transform: '$href'

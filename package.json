@@ -24,6 +24,10 @@
     "url": "https://github.com/pulsar-inc/scrapito/issues"
   },
   "homepage": "https://github.com/pulsar-inc/scrapito#readme",
+  "dependencies": {
+    "@scrapito/cli": "file:packages/cli",
+    "@scrapito/core": "file:packages/core"
+  },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^4.17.0",

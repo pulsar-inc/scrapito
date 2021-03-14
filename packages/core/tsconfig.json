@@ -10,6 +10,7 @@
     "strict": true,
     "outDir": "dist",
     "sourceMap": true,
+    "resolveJsonModule": true,
     "noImplicitReturns": false,
     "allowSyntheticDefaultImports": true,
   },
