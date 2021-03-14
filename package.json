@@ -1,0 +1,45 @@
+{
+  "name": "scrapito-monorepo",
+  "description": "Scrapito monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "lerna run build",
+    "lintfix:style": "stylelint --fix **/*.{vue,css,scss} --ignore-path .gitignore",
+    "lintfix:js": "eslint --fix --ext .ts,.js,.vue --ignore-path .gitignore .",
+    "test": "lerna run test",
+    "dev": "lerna run dev",
+    "diff": "lerna diff"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pulsar-inc/scrapito.git"
+  },
+  "author": "Pulsar Development Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pulsar-inc/scrapito/issues"
+  },
+  "homepage": "https://github.com/pulsar-inc/scrapito#readme",
+  "devDependencies": {
+    "@nuxtjs/eslint-config": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-nuxt": "^2.0.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-vue": "^7.7.0",
+    "lerna": "^4.0.0",
+    "prettier": "^2.2.1",
+    "stylelint": "^13.9.0",
+    "stylelint-config-prettier": "^8.0.2",
+    "stylelint-config-standard": "^20.0.0",
+    "typescript": "^4.2.3"
+  }
+}

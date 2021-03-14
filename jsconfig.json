@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "scrapito-frontend/~/*": [
+        "./packages/frontend/*"
+      ],
+      "scrapito-frontend/@/*": [
+        "./packages/frontend/*"
+      ],
+      "scrapito-frontend/~~/*": [
+        "./packages/frontend/*"
+      ],
+      "scrapito-frontend/@@/*": [
+        "./packages/frontend/*"
+      ]
+    }
+  },
+  "exclude": [
+    "./packages/frontend/node_modules",
+    "./packages/frontend/.nuxt",
+    "./packages/frontend/dist"
+  ]
+}

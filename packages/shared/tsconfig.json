@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "es2017",
+      "esnext.asynciterable"
+    ],
+    "target": "es5",
+    "module": "commonjs",
+    "strict": true,
+    "outDir": "dist",
+    "sourceMap": true,
+    "noImplicitReturns": false,
+    "allowSyntheticDefaultImports": true,
+  },
+  "compileOnSave": true,
+}
