@@ -7,7 +7,7 @@ module.exports = {
   overrides: [
     {
       // for files matching this pattern
-      files: ['*.vue', '*.js'],
+      files: ['**/*.vue', '**/*.js'],
       parserOptions: {
         parser: 'babel-eslint',
       },
@@ -23,13 +23,14 @@ module.exports = {
     },
     {
       // for files matching this pattern
-      files: ['*.ts'],
+      files: ['**/*.ts'],
       // following config will override "normal" config
       parserOptions: {
         parser: '@typescript-eslint/parser',
+        project: ['./tsconfig.json', './packages/*/tsconfig.json'],
       },
       plugins: ['@typescript-eslint'],
-      extends: ['eslint:recommended', 'prettier', 'plugin:@typescript-eslint/recommended'],
+      extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
       rules: {
         semi: [2, 'always'],
         quotes: [2, 'single'],

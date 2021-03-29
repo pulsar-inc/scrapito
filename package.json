@@ -8,8 +8,12 @@
   },
   "scripts": {
     "build": "lerna run build",
+    "lint:style": "stylelint **/*.{vue,css,scss} --ignore-path .gitignore",
+    "lint:script": "eslint --ext .ts,.js,.vue --ignore-path .gitignore .",
+    "lint": "npm run lint:style && npm run lint:script",
     "lintfix:style": "stylelint --fix **/*.{vue,css,scss} --ignore-path .gitignore",
-    "lintfix:js": "eslint --fix --ext .ts,.js,.vue --ignore-path .gitignore .",
+    "lintfix:script": "eslint --fix --ext .ts,.js,.vue --ignore-path .gitignore .",
+    "lintfix": "npm run lintfix:style && npm run lintfix:script",
     "test": "lerna run test",
     "dev": "lerna run dev",
     "diff": "lerna diff"
@@ -26,7 +30,8 @@
   "homepage": "https://github.com/pulsar-inc/scrapito#readme",
   "dependencies": {
     "@scrapito/cli": "file:packages/cli",
-    "@scrapito/core": "file:packages/core"
+    "@scrapito/core": "file:packages/core",
+    "node-html-parser": "^3.1.0"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^6.0.0",

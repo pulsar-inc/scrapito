@@ -1,14 +1,26 @@
 name: ExampleTemplate
+renderJS: false
+maxThreads: 1
 version: 1
 
 pipelines:
-  - name: stage1
-    url: https://github.com/pulsar-inc/scrapito
-    selector: 'a[data-tab-item="i2pull-requests-tab"]'
-    transform: '$href'
-
+  - name: example
+    url: http://example.com/
+    selector: "body > div"
     next:
-      - name: stage2
-        url: 0@stage1
-        selector: 'a[data-hovercard-type="pull_request"]'
-        transform: '$href'
+      - name: example__title
+        selector: 'h1'
+        attribute: '$text'
+        transform: res.toLowerCase()
+
+      - name: example__link
+        selector: 'a'
+        attribute: 'href'
+
+      - pipe::2ndex
+
+  - name: 2ndex
+    url: 0@example__link
+    waitFor: [pipe::example__link]
+    selector: 'a img[alt="Homepage"]'
+    attribute: 'src'

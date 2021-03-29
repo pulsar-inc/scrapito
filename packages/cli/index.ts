@@ -18,14 +18,15 @@ program
       logger.info('Loading %s template.', templatePath);
 
       const fullPath = join(currentPath, templatePath);
-
       const s = Scrapito.loadTemplate(fullPath);
 
       logger.info('Template %s (%s) loaded!', s.template.name, templatePath);
-
       logger.info('Init scrapping');
 
-      s.scrap();
+      s.scrap().then((data) => {
+        logger.info('Processing done ✅');
+        console.log(data);
+      }).catch(console.error);
     });
   });
 

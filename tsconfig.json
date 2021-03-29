@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "target": "es5",
+    "module": "commonjs",
+    "strict": true,
+    "outDir": "dist",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "noImplicitReturns": false,
+    "allowSyntheticDefaultImports": true,
+  },
+  "compileOnSave": true,
+}

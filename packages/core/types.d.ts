@@ -1,27 +1,45 @@
-export type PipelineIdentifier = `pipe::${string}`
+export type PipeIdentifier = `pipe::${string}`
 export type ValueIdentifier = `${string}@${string}`
-export type Selector = string | ValueIdentifier
-export type Selectors = Selector | Selector[] | {[name: string]: Selector | Selector[]};
+export type ValueOrPointer = string | ValueIdentifier
+export type PipeOrPointer = Pipeline | PipeIdentifier
+export type PipeOrPointers = Pipeline[] | PipeIdentifier[]
+
+export type RequesterCallback = (url: string) => any;
+export type SelecterCallback = (selector: string[], markup: any) => any;
+export type TransformerCallback = (transformer: string, data: any) => any;
+
+export interface Pipeline {
+  name: string;
+  parent?: PipeIdentifier;
+  selector: ValueOrPointer;
+
+  url?: ValueOrPointer;
+
+  maxRetries?: number;
+  maxThreads?: number;
+  attribute?: string;
+  transform?: string;
+
+  waitFor?: PipeIdentifier[];
+  next?: Pipeline[] | PipeIdentifier[];
+}
+
+export interface Param {
+  name: string;
+  file?: string;
+  value?: string | string[];
+}
 
 export interface Template {
   name: string;
   version: string;
-  maxIter?: number;
+  timeout?: number;
+  maxRetries?: number;
   maxThreads?: number;
+  renderJS?: boolean;
 
-  start: PipelineIdentifier;
-  pipelines: [Pipeline];
-}
+  params?: Param[];
 
-export interface Pipeline {
-  name: string;
-  selector: Selectors;
-  url: string | ValueIdentifier;
-
-  maxIter?: number;
-  maxThreads?: number;
-  transform?: string;
-
-  waitFor?: [PipelineIdentifier];
-  next?: [Pipeline | PipelineIdentifier];
+  start: PipeIdentifier;
+  pipelines: Pipeline[];
 }

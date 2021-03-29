@@ -14,6 +14,10 @@
   "author": "Pulsar Development Team",
   "license": "MIT",
   "dependencies": {
+    "@types/puppeteer": "^5.4.3",
+    "@types/redis": "^2.8.28",
+    "axios": "^0.21.1",
+    "bee-queue": "^1.3.1",
     "decoders": "^1.23.4",
     "js-yaml": "^4.0.0"
   },
@@ -22,5 +26,11 @@
     "@types/node": "^14.14.34",
     "ts-node-dev": "^1.1.6",
     "typescript": "^4.2.3"
+  },
+  "eslintConfig": {
+    "extends": "../../.eslintrc.js"
+  },
+  "optionalDependencies": {
+    "puppeteer": "^8.0.0"
   }
 }
