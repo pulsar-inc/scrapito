@@ -13,7 +13,7 @@ export const pipeline: Decoder<unknown> = exact({
   name: string,
   selector: selectorsGuard,
 
-  url: optional(either(string, valueIdentifierGuard)),
+  url: optional(either(selectorGuard, array(selectorGuard))),
 
   maxRetries: optional(number),
   maxThreads: optional(number),
