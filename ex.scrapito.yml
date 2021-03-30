@@ -21,6 +21,6 @@ pipelines:
 
   - name: 2ndex
     url: 0@example__link
-    waitFor: [pipe::example__link]
+    wait: [pipe::example__link]
     selector: 'a img[alt="Homepage"]'
     attribute: 'src'
