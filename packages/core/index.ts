@@ -9,7 +9,7 @@ export class Scrapito {
   constructor(template: Template) {
     this.template = template;
 
-    if (!this.template.timeout) this.template.timeout = 10000;
+    if (!this.template.timeout) this.template.timeout = 3600 * 1000;
 
     if (template?.renderJS) {
       this.engine = new PupperEngine(template);
