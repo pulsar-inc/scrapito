@@ -1,4 +1,4 @@
-import { Template, ValueOrPointer, Pipeline, PipeOrPointers } from '../types';
+import { Template, ValueOrPointer, Pipeline, PipeOrPointers, PipeOrPointer } from '../types';
 import { parse, HTMLElement } from 'node-html-parser';
 import { valueIdentifierGuard } from './guards';
 import * as Queue from 'bee-queue';
@@ -17,7 +17,7 @@ class SharedEngine {
     this.queue = new Queue('PeachEngine');
   }
 
-  private setParents(pipelines: PipeOrPointers, parent?: string): any {
+  private setParents(pipelines: PipeOrPointers, parent?: string): unknown {
     return pipelines.map((pipe: any) => {
       if (parent && pipe.name) pipe.parent = parent;
       if (pipe.next) return this.setParents(pipe.next, `pipe::${pipe.name}`);
@@ -48,9 +48,9 @@ class SharedEngine {
    */
   private async pushJob(data: Pipeline) {
     // Pushing childs into pending queue
-    data.next?.forEach((child: any) => {
+    data.next?.forEach((child: PipeOrPointer) => {
       if (child instanceof String) return;
-      this.pushToPending(child);
+      this.pushToPending(child as Pipeline);
     });
 
     const job = this.queue.createJob(data);
@@ -94,7 +94,13 @@ class SharedEngine {
     });
 
     // Once a job is finished we need to process its dependancies
-    this.queue.on('succeeded', (j) => this.refreshQueue.bind(this)(j));
+    this.queue.on('succeeded', (j) => {
+      this.refreshQueue.bind(this)(j);
+      console.info(' ', j.data.name, '=> Finished!');
+    });
+    this.queue.on('retrying', (j, err) => {
+      console.warn(' ', j.data.name, 'retry due to', err.message);
+    });
   }
 
   /**
