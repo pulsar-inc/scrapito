@@ -6,7 +6,7 @@
   "types": "index.d.ts",
   "scripts": {
     "build": "tsc -d",
-    "dev": "tsnd --respawn index.ts",
+    "dev": "tsc -d -w",
     "local": "npm run build && npm i -g && scrapito",
     "version": "lerna version --yes",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,4 +1,4 @@
-import { Template, ValueOrPointer, Pipeline, PipeOrPointers, PipeOrPointer } from '../types';
+import { Template, ValueOrPointer, Pipeline, PipeOrPointer } from '../types';
 import { parse, HTMLElement } from 'node-html-parser';
 import { valueIdentifierGuard } from './guards';
 import * as Queue from 'bee-queue';
@@ -17,12 +17,28 @@ class SharedEngine {
     this.queue = new Queue('PeachEngine');
   }
 
-  private setParents(pipelines: PipeOrPointers, parent?: string): unknown {
+  private setParents(pipelines: PipeOrPointer[], parent?: string): unknown {
     return pipelines.map((pipe: any) => {
       if (parent && pipe.name) pipe.parent = parent;
       if (pipe.next) return this.setParents(pipe.next, `pipe::${pipe.name}`);
       return pipe;
     });
+  }
+
+  /**
+   * Set or append to store.
+   * @param key key to set
+   * @param value value to set
+   */
+  public setStore(key: string | number, value: any): void {
+    const test = this.store.get(key);
+    if (test instanceof Array) {
+      this.store.set(key, test.concat(value));
+    } else if (test) {
+      this.store.set(key, [test, value]);
+    } else {
+      this.store.set(key, value);
+    }
   }
 
   /**
@@ -34,7 +50,7 @@ class SharedEngine {
   }
 
   private pushToPending(data: Pipeline) {
-    const deps = (data.waitFor as [string] || []).concat(data.parent ? [data.parent as string] : []);
+    const deps = (data.wait as [string] || []).concat(data.parent ? [data.parent as string] : []);
     return deps.map(dep => {
       const items = (this.pendingJobs.get(dep) || []).concat([data]);
       this.pendingJobs.set(dep, items);
@@ -46,7 +62,7 @@ class SharedEngine {
    * Also push it's childs into the pending queue
    * Use template values or default ones
    */
-  private async pushJob(data: Pipeline) {
+  private async pushJob(data: Pipeline, id?: string) {
     // Pushing childs into pending queue
     data.next?.forEach((child: PipeOrPointer) => {
       if (child instanceof String) return;
@@ -55,23 +71,31 @@ class SharedEngine {
 
     const job = this.queue.createJob(data);
     await job
-      .setId(data.name)
+      .setId(id ?? data.name)
       .timeout(this.template.timeout || 10000)
       .retries(this.template.maxRetries || 2)
       .save();
     return job;
   }
 
+  /**
+   * Push many jobs and wait for them to finish or fail
+   */
+  public async pushManyAndWait(jobs: Array<{ data: Pipeline, id: string }>): Promise<unknown[]> {
+    const allJobs = await Promise.all(jobs.map(({data, id}) => this.pushJob(data, id)));
+    return Promise.all(allJobs.map(job => new Promise(res => job.on('succeeded', res))));
+  }
+
   private refreshQueue(finishedJob: Queue.Job<Pipeline>) {
-    const pending = this.pendingJobs.get('pipe::' + finishedJob.data.name) || [];
-    this.pendingJobs.delete('pipe::' + finishedJob.data.name);
+    const pending = this.pendingJobs.get('pipe::' + finishedJob.id) || [];
+    this.pendingJobs.delete('pipe::' + finishedJob.id);
     const allValues = Array.from(this.pendingJobs.values()).flat();
 
     // Exclude still dependant jobs
     const deps = pending.filter(v => !allValues.includes(v));
     deps.forEach(dep => this.pushJob(dep));
 
-    // Processing is done
+    // Check if the whole processing is done
     if (!this.pendingJobs.size && !deps.length) {
       this.queue.checkHealth().then(h => {
         if (!h.active && !h.waiting && !h.delayed && !h.newestJob)
@@ -86,7 +110,7 @@ class SharedEngine {
   async initPipelines() {
     this.template.pipelines.forEach(pipe => {
       // If pipeline is dependant push into pending
-      if (pipe.waitFor) {
+      if (pipe.wait) {
         this.pushToPending(pipe);
       } else {
         this.pushJob(pipe);
@@ -96,10 +120,13 @@ class SharedEngine {
     // Once a job is finished we need to process its dependancies
     this.queue.on('succeeded', (j) => {
       this.refreshQueue.bind(this)(j);
-      console.info(' ', j.data.name, '=> Finished!');
+      console.info('INFO ::', j.id, '✅');
+    });
+    this.queue.on('failed', (j, err) => {
+      console.warn('ERROR ::', j.id, '::', err.message);
     });
     this.queue.on('retrying', (j, err) => {
-      console.warn(' ', j.data.name, 'retry due to', err.message);
+      console.warn('RETRY ::', j.id, '::', err.message);
     });
   }
 
@@ -128,7 +155,7 @@ export class AxiosEngine extends SharedEngine {
 
     return new Promise((resolve, reject) => {
       this.queue.ready().then(() => {
-        console.info('Queue ready, staring processing!');
+        console.info('INFO :: Queue ready, start processing!');
         this.queue.process(this.template.maxThreads || 1, this.processing.bind(this));
       });
 
@@ -138,12 +165,25 @@ export class AxiosEngine extends SharedEngine {
   }
 
   private async processing(job: Queue.Job<Pipeline>) {
+    if (job.data.url instanceof Array) {
+      return this.pushManyAndWait(job.data.url.map((url, i) => ({
+        data: { ...job.data, url },
+        id: `${job.id}-${i}`
+      })));
+    } else if (job.data.url?.startsWith('map@')) {
+      const urls: string[] = this.store.get(`pipe::${job.data.url.slice(4)}`);
+      return this.pushManyAndWait(urls.map((url, i) => ({
+        data: { ...job.data, url },
+        id: `${job.id}-${i}`
+      })));
+    }
+
     return this.requester(job.data)
       .then(this.selecter.bind(this))
       .then(this.getter.bind(this))
       .then(this.transformer.bind(this))
       .then(({ pipe, data }) => {
-        this.store.set(`pipe::${pipe.name}`, data);
+        this.setStore(`pipe::${pipe.name}`, data);
         return data.length;
       });
   }
@@ -155,10 +195,15 @@ export class AxiosEngine extends SharedEngine {
       throw new Error('No URL or parent!');
     }
 
-    const url: string = this.dereferencer(pipe.url);
-    const { data } = await axios.get(url);
+    const url: string = this.dereferencer(pipe.url as string);
 
-    return { pipe, data: parse(data) };
+    try {
+      const { data } = await axios.get(url, { timeout: 1000 });
+      return { pipe, data: parse(data) };
+    } catch (error) {
+      console.error('ERROR ::', pipe.name, '::', error?.message ?? String(error));
+    }
+    return { pipe, data: parse('') };
   }
 
   private selecter({ pipe, data }: { pipe: Pipeline, data: HTMLElement | HTMLElement[] }) {

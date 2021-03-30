@@ -2,7 +2,6 @@ export type PipeIdentifier = `pipe::${string}`
 export type ValueIdentifier = `${string}@${string}`
 export type ValueOrPointer = string | ValueIdentifier
 export type PipeOrPointer = Pipeline | PipeIdentifier
-export type PipeOrPointers = Pipeline[] | PipeIdentifier[]
 
 export type RequesterCallback = (url: string) => any;
 export type SelecterCallback = (selector: string[], markup: any) => any;
@@ -13,14 +12,14 @@ export interface Pipeline {
   parent?: PipeIdentifier;
   selector: ValueOrPointer;
 
-  url?: ValueOrPointer;
+  url?: ValueOrPointer | ValueOrPointer[];
 
   maxRetries?: number;
   maxThreads?: number;
   attribute?: string;
   transform?: string;
 
-  waitFor?: PipeIdentifier[];
+  wait?: PipeIdentifier[];
   next?: Pipeline[] | PipeIdentifier[];
 }
 

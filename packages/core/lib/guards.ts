@@ -20,7 +20,7 @@ export const pipeline: Decoder<unknown> = exact({
   attribute: optional(string),
   transform: optional(string),
 
-  waitFor: optional(array(pipelineIdentifierGuard)),
+  wait: optional(array(pipelineIdentifierGuard)),
   next: optional(array(either(lazy(() => pipeline), pipelineIdentifierGuard))),
 });
 
