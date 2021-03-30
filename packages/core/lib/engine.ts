@@ -72,7 +72,7 @@ class SharedEngine {
     const job = this.queue.createJob(data);
     await job
       .setId(id ?? data.name)
-      .timeout(this.template.timeout || 10000)
+      .timeout(this.template.timeout as number)
       .retries(this.template.maxRetries || 2)
       .save();
     return job;
