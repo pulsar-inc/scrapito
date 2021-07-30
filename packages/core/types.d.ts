@@ -3,9 +3,9 @@ export type ValueIdentifier = `${string}@${string}`
 export type ValueOrPointer = string | ValueIdentifier
 export type PipeOrPointer = Pipeline | PipeIdentifier
 
-export type RequesterCallback = (url: string) => any;
-export type SelecterCallback = (selector: string[], markup: any) => any;
-export type TransformerCallback = (transformer: string, data: any) => any;
+export type RequesterCallback = (url: string) => unknown;
+export type SelecterCallback = (selector: string[], markup: unknown) => unknown;
+export type TransformerCallback = (transformer: string, data: unknown) => unknown;
 
 export interface Pipeline {
   name: string;
@@ -31,11 +31,11 @@ export interface Param {
 
 export interface Template {
   name: string;
-  version: string;
+  version: '1.0.0';
   timeout?: number;
+  renderJS?: boolean;
   maxRetries?: number;
   maxThreads?: number;
-  renderJS?: boolean;
 
   params?: Param[];
 

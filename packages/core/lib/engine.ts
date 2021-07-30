@@ -1,14 +1,18 @@
-import { Template, ValueOrPointer, Pipeline, PipeOrPointer } from '../types';
+import { Template, ValueOrPointer, Pipeline, PipeOrPointer, PipeIdentifier } from '../types';
 import { parse, HTMLElement } from 'node-html-parser';
 import { valueIdentifierGuard } from './guards';
 import * as Queue from 'bee-queue';
 import axios from 'axios';
 
+function isPipeline(ukn: PipeOrPointer): ukn is Pipeline {
+  return (<Pipeline>ukn).name !== undefined;
+}
+
 class SharedEngine {
   protected queue: Queue;
   protected resolve: any;
   readonly template!: Template;
-  readonly store = new Map<string | number, any>();
+  readonly store = new Map<string | number, unknown>();
   readonly pendingJobs = new Map<string | number, Pipeline[]>();
 
   constructor(template: Template) {
@@ -17,10 +21,12 @@ class SharedEngine {
     this.queue = new Queue('PeachEngine');
   }
 
-  private setParents(pipelines: PipeOrPointer[], parent?: string): unknown {
-    return pipelines.map((pipe: any) => {
-      if (parent && pipe.name) pipe.parent = parent;
-      if (pipe.next) return this.setParents(pipe.next, `pipe::${pipe.name}`);
+  private setParents(pipelines: PipeOrPointer[], parent?: PipeIdentifier): unknown {
+    return pipelines.map((pipe: PipeOrPointer) => {
+      if (isPipeline(pipe)) {
+        if (parent) pipe.parent = parent;
+        if (pipe.next) return this.setParents(pipe.next, `pipe::${pipe.name}`);
+      }
       return pipe;
     });
   }
@@ -30,7 +36,7 @@ class SharedEngine {
    * @param key key to set
    * @param value value to set
    */
-  public setStore(key: string | number, value: any): void {
+  public setStore(key: string | number, value: unknown): void {
     const test = this.store.get(key);
     if (test instanceof Array) {
       this.store.set(key, test.concat(value));
@@ -139,7 +145,7 @@ class SharedEngine {
     // TODO: handle this anywhere in a string
     if (valueIdentifierGuard(identifier).isOk()) {
       const [key, pipeName] = (identifier as string).split('@');
-      const datas = this.store.get(`pipe::${pipeName}`);
+      const datas = this.store.get(`pipe::${pipeName}`) as Record<number, string>;
 
       return datas[parseInt(key)];
     }
@@ -171,7 +177,7 @@ export class AxiosEngine extends SharedEngine {
         id: `${job.id}-${i}`
       })));
     } else if (job.data.url?.startsWith('map@')) {
-      const urls: string[] = this.store.get(`pipe::${job.data.url.slice(4)}`);
+      const urls = this.store.get(`pipe::${job.data.url.slice(4)}`) as string[];
       return this.pushManyAndWait(urls.map((url, i) => ({
         data: { ...job.data, url },
         id: `${job.id}-${i}`
@@ -190,7 +196,7 @@ export class AxiosEngine extends SharedEngine {
 
   private async requester(pipe: Pipeline) {
     if (!pipe.url && pipe.parent) {
-      return { pipe, data: this.store.get(pipe.parent) };
+      return { pipe, data: this.store.get(pipe.parent) as any };
     } else if (!pipe.url) {
       throw new Error('No URL or parent!');
     }
