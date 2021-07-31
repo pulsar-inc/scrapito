@@ -1,10 +1,12 @@
 import { templateGuard } from './guards';
 import { Template } from '../types';
-import { readFileSync } from 'fs';
 import { load } from 'js-yaml';
 
-export function loadTemplate(path: string, encoding: BufferEncoding = 'utf-8'): Template {
-  return parse(load(readFileSync(path, { encoding })));
+export async function loadTemplate(
+  path: string,
+  encoding: BufferEncoding = 'utf-8'
+): Promise<Template> {
+  return parse(load((await import('fs')).readFileSync(path, { encoding })));
 }
 
 export function parse(template: unknown): Template {

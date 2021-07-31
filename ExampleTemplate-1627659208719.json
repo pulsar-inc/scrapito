@@ -1,0 +1,14 @@
+{
+    "example": [
+        "<div>\n    <h1>Example Domain</h1>\n    <p>This domain is for use in illustrative examples in documents. You may use this\n    domain in literature without prior coordination or asking for permission.</p>\n    <p><a href=\"https://www.iana.org/domains/example\">More information...</a></p>\n</div>"
+    ],
+    "example__title": [
+        "example domain"
+    ],
+    "example__link": [
+        "https://www.iana.org/domains/example"
+    ],
+    "2ndex": [
+        "/_img/2013.1/iana-logo-header.svg"
+    ]
+}

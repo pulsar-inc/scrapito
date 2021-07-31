@@ -1,3 +1,5 @@
+import ThreadsPlugin from 'threads-plugin'
+
 export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
@@ -55,5 +57,16 @@ export default {
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {},
+  build: {
+    extend(config) {
+      config.module.rules.push({
+        test: /\/workers\/.*\.js$/,
+        loader: 'worker-loader',
+      })
+    },
+    output: {
+      globalObject: 'self',
+    },
+    plugins: [new ThreadsPlugin()],
+  },
 }

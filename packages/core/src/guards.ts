@@ -1,6 +1,18 @@
 import {
-  array, guard, string, number, lazy, dict, optional,
-  boolean, regex, exact, either, either3, constant, Decoder
+  array,
+  guard,
+  string,
+  number,
+  lazy,
+  dict,
+  optional,
+  boolean,
+  regex,
+  exact,
+  either,
+  either3,
+  constant,
+  Decoder,
 } from 'decoders';
 import { nonEmptyArray } from 'decoders/array';
 
@@ -19,9 +31,17 @@ export const pipeline: Decoder<unknown> = exact({
   maxThreads: optional(number),
   attribute: optional(string),
   transform: optional(string),
+  timeout: optional(number),
 
   wait: optional(array(pipelineIdentifierGuard)),
-  next: optional(array(either(lazy(() => pipeline), pipelineIdentifierGuard))),
+  next: optional(
+    array(
+      either(
+        lazy(() => pipeline),
+        pipelineIdentifierGuard
+      )
+    )
+  ),
 });
 
 export const param: Decoder<unknown> = exact({
@@ -30,16 +50,18 @@ export const param: Decoder<unknown> = exact({
   value: optional(either(string, array(string))),
 });
 
-export const templateGuard = guard(exact({
-  name: string,
-  version: constant(1),
-  maxRetries: optional(number),
-  timeout: optional(number),
-  maxThreads: optional(number),
-  renderJS: optional(boolean),
+export const templateGuard = guard(
+  exact({
+    name: string,
+    version: constant(1),
+    maxRetries: optional(number),
+    timeout: optional(number),
+    maxThreads: optional(number),
+    renderJS: optional(boolean),
 
-  params: optional(param),
+    params: optional(param),
 
-  start: optional(array(pipelineIdentifierGuard)),
-  pipelines: nonEmptyArray(pipeline),
-}));
+    start: optional(array(pipelineIdentifierGuard)),
+    pipelines: nonEmptyArray(pipeline),
+  })
+);

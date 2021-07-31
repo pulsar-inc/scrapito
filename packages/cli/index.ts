@@ -23,29 +23,27 @@ function dump(s: Scrapito, data: Map<string | number, unknown>, logger: Logger) 
   logger.info(`Data dumped into ${outFile} ✅`);
 }
 
-program
-  .version(version)
-  .description(description);
+program.version(version).description(description);
 
-program
-  .argument('[[template] ...]', 'Template(s) to run')
-  .action(({ logger, args }) => {
-    const paths = args.template as [string];
+program.argument('[[template] ...]', 'Template(s) to run').action(({ logger, args }) => {
+  const paths = args.template as [string];
 
-    paths.forEach(templatePath => {
-      logger.info('Loading %s template.', templatePath);
+  paths.forEach(async (templatePath) => {
+    logger.info('Loading %s template.', templatePath);
 
-      const fullPath = join(currentPath, templatePath);
-      const s = Scrapito.loadTemplate(fullPath);
+    const fullPath = join(currentPath, templatePath);
+    const s = await Scrapito.loadTemplate(fullPath);
 
-      logger.info('Template %s (%s) loaded!', s.template.name, templatePath);
-      logger.info('Init scrapping');
+    logger.info('Template %s (%s) loaded!', s.template.name, templatePath);
+    logger.info('Init scrapping');
 
-      s.scrap().then((data) => {
+    s.scrap()
+      .then((data) => {
         logger.info('Processing done ✅');
         dump(s, data, logger);
-      }).catch(console.error);
-    });
+      })
+      .catch(console.error);
   });
+});
 
 program.run();

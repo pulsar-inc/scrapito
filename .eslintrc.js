@@ -11,12 +11,7 @@ module.exports = {
       parserOptions: {
         parser: 'babel-eslint',
       },
-      extends: [
-        '@nuxtjs',
-        'prettier',
-        'plugin:prettier/recommended',
-        'plugin:nuxt/recommended',
-      ],
+      extends: ['@nuxtjs', 'prettier', 'plugin:prettier/recommended', 'plugin:nuxt/recommended'],
       plugins: ['prettier'],
       // add your custom rules here
       rules: {},
@@ -29,12 +24,13 @@ module.exports = {
         parser: '@typescript-eslint/parser',
         project: ['./tsconfig.json', './packages/*/tsconfig.json'],
       },
-      plugins: ['@typescript-eslint'],
-      extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
-      rules: {
-        semi: [2, 'always'],
-        quotes: [2, 'single'],
-      },
+      plugins: ['@typescript-eslint', 'prettier'],
+      extends: [
+        'eslint:recommended',
+        'prettier',
+        'plugin:@typescript-eslint/recommended',
+        'plugin:prettier/recommended',
+      ],
     },
   ],
-}
+};

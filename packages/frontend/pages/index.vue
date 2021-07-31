@@ -4,29 +4,44 @@
       <Logo />
       <h1 class="title">scrapito-frontend</h1>
       <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-        >
-          GitHub
-        </a>
+        <button rel="noopener noreferrer" class="button--green" @click="scrap">Scrap</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-export default {}
+import { Scrapito } from '@scrapito/core'
+
+export default {
+  methods: {
+    async scrap() {
+      const s = new Scrapito({
+        name: 'dede',
+        version: 1,
+        timeout: 2000,
+        start: 'first',
+        pipelines: [
+          {
+            url: 'http://localhost:3000/links',
+            name: 'all-links',
+            selector: 'a',
+            next: [
+              {
+                name: 'extract-hrefs',
+                selector: '*',
+                attribute: 'href',
+              },
+            ],
+          },
+        ],
+      })
+      console.log(s)
+      const res = await s.scrap()
+      console.log(res)
+    },
+  },
+}
 </script>
 
 <style>
@@ -40,8 +55,8 @@ export default {}
 }
 
 .title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
   display: block;
   font-weight: 300;
   font-size: 100px;

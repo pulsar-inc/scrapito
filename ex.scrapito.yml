@@ -1,12 +1,12 @@
 name: ExampleTemplate
 renderJS: false
-maxThreads: 1
+maxThreads: 8
 version: 1
 
 pipelines:
   - name: example
     url: http://example.com/
-    selector: "body > div"
+    selector: 'body > div'
     next:
       - name: example__title
         selector: 'h1'
@@ -20,6 +20,7 @@ pipelines:
       - pipe::2ndex
 
   - name: 2ndex
+    timeout: 5000
     url: 0@example__link
     wait: [pipe::example__link]
     selector: 'a img[alt="Homepage"]'
