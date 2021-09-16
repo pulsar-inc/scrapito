@@ -3,45 +3,63 @@ import typescript from 'rollup-plugin-typescript2';
 import builtins from 'rollup-plugin-node-builtins';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import { terser } from 'rollup-plugin-terser';
+import replace from '@rollup/plugin-replace';
 import cleanup from 'rollup-plugin-cleanup';
 import json from '@rollup/plugin-json';
 
 const packageJson = require('./package.json');
 
-const globals = {
+// Deps to not bundle
+const external = Object.keys({
   ...packageJson.devDependencies,
-  // 'threads/worker': '*',
-};
+  threads: '',
+  fs: '',
+});
 
-const plugins = [
+const plugins = (browser = false, minify = false) => [
   webWorkerLoader({
-    targetPlatform: 'browser',
+    targetPlatform: browser ? 'browser' : 'node',
   }),
   builtins(),
-  resolve({ jsnext: true, preferBuiltins: true, browser: true }),
+  replace({
+    'process.env.IS_NODE_ENV': false,
+    preventAssignment: true,
+  }),
+  resolve({
+    browser,
+    jsnext: true,
+    mainFields: ['module', 'main'],
+    preferBuiltins: true,
+  }),
   json(),
   typescript({
+    module: 'esnext',
+    tsconfig: 'tsconfig.json',
+    rollupCommonJSResolveHack: true,
     useTsconfigDeclarationDir: true,
   }),
   commonjs(),
   cleanup({
     comments: 'none',
   }),
+  ...(minify ? [terser()] : []),
 ];
 
-const configWorker = {
-  input: 'src/workers/axios.ts',
+// Browser only
+const iife = {
+  input: 'index.ts',
   output: {
-    dir: 'dist/workers',
-    format: 'esm',
+    file: packageJson.browser,
+    format: 'iife',
     sourcemap: true,
-    intro: 'const global = self;',
+    name: 'scrapito',
   },
-  plugins,
-  external: Object.keys(globals),
+  plugins: plugins(true, true),
+  external,
 };
 
-const mainConfig = {
+const esmBrowser = {
   input: 'index.ts',
   output: {
     dir: 'dist',
@@ -49,10 +67,56 @@ const mainConfig = {
     exports: 'auto',
     sourcemap: true,
   },
-  plugins,
-  context: 'self',
-  moduleContext: 'self',
-  external: Object.keys(globals),
+  plugins: plugins(true, false),
+  moduleContext: 'this',
+  context: 'this',
+  external,
 };
 
-export default [configWorker, mainConfig];
+const esmNode = {
+  input: 'index.ts',
+  output: {
+    dir: 'dist/esm',
+    format: 'esm',
+    sourcemap: true,
+  },
+  plugins: plugins(false, false),
+  external,
+};
+
+const cjs = {
+  input: 'index.ts',
+  output: {
+    dir: 'dist',
+    format: 'cjs',
+    exports: 'auto',
+    sourcemap: true,
+  },
+  plugins: plugins(false, false),
+  external,
+};
+
+const configWorkerBrowser = {
+  input: ['src/workers/axios.ts', 'src/workers/puppeteer.ts'],
+  output: {
+    dir: 'dist/workers',
+    format: 'esm',
+    sourcemap: true,
+    intro: 'const global = self;',
+  },
+  plugins: plugins(true, false),
+  external,
+};
+
+const configWorker = {
+  input: 'src/workers/axios.ts',
+  output: {
+    dir: 'dist/workers',
+    format: 'cjs',
+    sourcemap: true,
+  },
+  plugins: plugins(false, false),
+  external,
+};
+
+export default [esmBrowser, configWorkerBrowser];

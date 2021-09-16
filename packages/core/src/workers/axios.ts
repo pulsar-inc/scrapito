@@ -55,7 +55,7 @@ async function requester(pipe: Pipeline) {
   try {
     const { data } = await axios.get(url, { timeout: pipe.timeout });
     return { pipe, data: parse(data) };
-  } catch (error) {
+  } catch (error: any) {
     console.error('ERROR ::', pipe.name, '::', error?.message ?? String(error));
   }
   return { pipe, data: parse('') };

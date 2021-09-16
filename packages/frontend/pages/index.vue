@@ -11,12 +11,10 @@
 </template>
 
 <script>
-import { Scrapito } from '@scrapito/core'
-
 export default {
   methods: {
     async scrap() {
-      const s = new Scrapito({
+      const s = new this.$crapito({
         name: 'dede',
         version: 1,
         timeout: 2000,

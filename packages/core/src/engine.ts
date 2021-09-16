@@ -21,11 +21,17 @@ export class ScrapitoEngine {
     this.template = template;
     this.setSubFields(template.pipelines);
 
-    // if (template?.renderJS && typeof window === 'undefined') {
-    //   this.pool = Pool(() => spawn(new Worker('./workers/puppeteer')), this.template.maxThreads);
-    // } else {
-    this.pool = Pool(() => spawn(new Worker('./workers/axios.js')), this.template.maxThreads);
-    // }
+    if (template?.renderJS && process.env.IS_NODE_ENV) {
+      this.pool = Pool(
+        () => spawn(new Worker('./workers/puppeteer.js', { type: 'module' })),
+        this.template.maxThreads
+      );
+    } else {
+      this.pool = Pool(
+        () => spawn(new Worker('./workers/axios.js', { type: 'module' })),
+        this.template.maxThreads
+      );
+    }
   }
 
   /**
