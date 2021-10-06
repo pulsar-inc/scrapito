@@ -58,6 +58,10 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-    plugins: [new ThreadsPlugin()],
+    plugins: [
+      new ThreadsPlugin({
+        globalObject: false,
+      }),
+    ],
   },
 }

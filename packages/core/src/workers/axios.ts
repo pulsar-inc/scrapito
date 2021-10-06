@@ -2,7 +2,8 @@ import { Pipeline, ScrapitoStore, WorkerResult } from '../../types';
 import { parse, HTMLElement } from 'node-html-parser';
 import { dereferencer } from '../utils';
 import { expose } from 'threads/worker';
-import axios from 'axios';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const axios = require('axios').default;
 
 let localStore = new Map<string | number, unknown>();
 

@@ -18,14 +18,20 @@ const external = Object.keys({
 });
 
 const plugins = (browser = false, minify = false) => [
+  replace({
+    'process.env.IS_NODE_ENV': false,
+    preventAssignment: true,
+    'process.env.__puppeteerWorker__': JSON.stringify(
+      browser ? './browser-workers/puppeteer.js' : './workers/puppeteer.js'
+    ),
+    'process.env.__axiosWorker__': JSON.stringify(
+      browser ? './browser-workers/axios.js' : './workers/axios.js'
+    ),
+  }),
   webWorkerLoader({
     targetPlatform: browser ? 'browser' : 'node',
   }),
   builtins(),
-  replace({
-    'process.env.IS_NODE_ENV': false,
-    preventAssignment: true,
-  }),
   resolve({
     browser,
     jsnext: true,
@@ -46,23 +52,10 @@ const plugins = (browser = false, minify = false) => [
   ...(minify ? [terser()] : []),
 ];
 
-// Browser only
-const iife = {
-  input: 'index.ts',
-  output: {
-    file: packageJson.browser,
-    format: 'iife',
-    sourcemap: true,
-    name: 'scrapito',
-  },
-  plugins: plugins(true, true),
-  external,
-};
-
 const esmBrowser = {
   input: 'index.ts',
   output: {
-    dir: 'dist',
+    file: 'dist/browser.js',
     format: 'esm',
     exports: 'auto',
     sourcemap: true,
@@ -76,18 +69,19 @@ const esmBrowser = {
 const esmNode = {
   input: 'index.ts',
   output: {
-    dir: 'dist/esm',
+    file: packageJson.module,
     format: 'esm',
+    exports: 'auto',
     sourcemap: true,
   },
   plugins: plugins(false, false),
   external,
 };
 
-const cjs = {
+const cjsNode = {
   input: 'index.ts',
   output: {
-    dir: 'dist',
+    file: packageJson.main,
     format: 'cjs',
     exports: 'auto',
     sourcemap: true,
@@ -99,7 +93,7 @@ const cjs = {
 const configWorkerBrowser = {
   input: ['src/workers/axios.ts', 'src/workers/puppeteer.ts'],
   output: {
-    dir: 'dist/workers',
+    dir: 'dist/browser-workers',
     format: 'esm',
     sourcemap: true,
     intro: 'const global = self;',
@@ -109,7 +103,7 @@ const configWorkerBrowser = {
 };
 
 const configWorker = {
-  input: 'src/workers/axios.ts',
+  input: ['src/workers/axios.ts', 'src/workers/puppeteer.ts'],
   output: {
     dir: 'dist/workers',
     format: 'cjs',
@@ -119,4 +113,4 @@ const configWorker = {
   external,
 };
 
-export default [esmBrowser, configWorkerBrowser];
+export default [cjsNode, esmNode, esmBrowser, configWorker, configWorkerBrowser];

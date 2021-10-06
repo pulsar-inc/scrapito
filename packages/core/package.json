@@ -2,9 +2,23 @@
   "name": "@scrapito/core",
   "version": "0.0.1",
   "description": "Scraping template core",
-  "main": "dist/index.js",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.esm.js",
   "browser": {
-    "fs": false
+    "fs": false,
+    "./dist/index.esm.js": "./dist/browser.js",
+    "./dist/workers/axios.js": "./dist/browser-workers/axios.js"
+  },
+  "exports": {
+    ".": {
+      "node": {
+        "module": "./dist/index.esm.js",
+        "require": "./dist/index.cjs.js",
+        "import": "./dist/index.esm.js"
+      },
+      "default": "./dist/browser.js"
+    },
+    "./package.json": "./package.json"
   },
   "types": "index.d.ts",
   "scripts": {

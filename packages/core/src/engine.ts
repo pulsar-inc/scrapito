@@ -23,12 +23,20 @@ export class ScrapitoEngine {
 
     if (template?.renderJS && process.env.IS_NODE_ENV) {
       this.pool = Pool(
-        () => spawn(new Worker('./workers/puppeteer.js', { type: 'module' })),
+        () =>
+          spawn(
+            new Worker(process.env.__puppeteerWorker__ || './workers/puppeteer.js', {
+              type: 'module',
+            })
+          ),
         this.template.maxThreads
       );
     } else {
       this.pool = Pool(
-        () => spawn(new Worker('./workers/axios.js', { type: 'module' })),
+        () =>
+          spawn(
+            new Worker(process.env.__axiosWorker__ || './workers/axios.js', { type: 'module' })
+          ),
         this.template.maxThreads
       );
     }

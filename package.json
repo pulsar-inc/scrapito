@@ -32,7 +32,6 @@
   },
   "homepage": "https://github.com/pulsar-inc/scrapito#readme",
   "dependencies": {
-    "@scrapito/cli": "file:packages/cli",
     "@scrapito/core": "file:packages/core",
     "node-html-parser": "^3.1.0"
   },

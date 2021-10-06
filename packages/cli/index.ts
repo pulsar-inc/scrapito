@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { version, description } from './package.json';
 import { Scrapito } from '@scrapito/core';
 import { program } from '@caporal/core';
