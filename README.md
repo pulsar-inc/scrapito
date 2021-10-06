@@ -189,3 +189,10 @@ pipelines:
   - [ ] remove some pipelines of the output
   - [ ] cascade result sharing
   - [ ] map selectors
+
+# Development
+
+## Important notes
+
+- If you permform some changes in rollup config or package.json run the `npm run refresh` command each time you make a change to be able to test the result properly.
+  - It may save you an hour or so ...
