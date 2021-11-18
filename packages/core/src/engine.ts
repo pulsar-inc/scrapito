@@ -119,11 +119,15 @@ export class ScrapitoEngine {
     });
 
     if (pipe.url instanceof Array) {
-      return this.pushManyAndWait(pipe.url.map((url) => ({ ...pipe, url })));
+      return this.pushManyAndWait(
+        pipe.url.map((url, idx) => ({ ...pipe, url, name: `${pipe.name}-${idx}` }))
+      );
       // id: `${job.id}-${i}`
     } else if (pipe.url?.startsWith('map@')) {
       const urls = this.store.get(`pipe::${pipe.url.slice(4)}`) as string[];
-      return this.pushManyAndWait(urls.map((url) => ({ ...pipe, url })));
+      return this.pushManyAndWait(
+        urls.map((url, idx) => ({ ...pipe, url, name: `${pipe.name}-${idx}` }))
+      );
     }
 
     return this.pool.queue((processing) => processing(pipe, this.store) as Promise<WorkerResult>);

@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "rollup -cw",
+    "dev": "tsc -w",
     "local": "npm run build && npm i -g && scrapito",
     "version": "lerna version --yes",
     "test": "echo \"Error: no test specified\" && exit 1"

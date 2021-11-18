@@ -8,11 +8,11 @@ const axios = require('axios').default;
 let localStore = new Map<string | number, unknown>();
 
 function stringifyHTML(value: unknown): string | string[] | any {
-  if ((value as HTMLElement).outerHTML !== undefined) {
+  if (!!value && (value as HTMLElement).outerHTML !== undefined) {
     return (value as HTMLElement).outerHTML;
   } else if (value instanceof Array) {
     return value.map((v) => {
-      if ((v as HTMLElement).outerHTML !== undefined) return (v as HTMLElement).outerHTML;
+      if (!!v && (v as HTMLElement).outerHTML !== undefined) return (v as HTMLElement).outerHTML;
       return v;
     }) as string[];
   }
