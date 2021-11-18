@@ -2,7 +2,8 @@
   "compilerOptions": {
     "lib": [
       "dom",
-      "esnext"
+      "esnext",
+      "dom.iterable"
     ],
     "target": "ES2015",
     "module": "commonjs",
