@@ -26,7 +26,7 @@ function dump(s: Scrapito, data: Map<string | number, unknown>, logger: Logger) 
 
 program.version(version).description(description);
 
-program.argument('[[template] ...]', 'Template(s) to run').action(({ logger, args }) => {
+program.argument('<template ...>', 'Template(s) to run').action(({ logger, args }) => {
   const paths = args.template as [string];
 
   paths.forEach(async (templatePath) => {
