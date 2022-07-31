@@ -2,6 +2,8 @@ import { Template, Pipeline, PipeOrPointer, PipeIdentifier, WorkerResult } from 
 import { PoolEvent } from 'threads/dist/master/pool';
 import { spawn, Pool, Worker } from 'threads';
 import { EventEmitter } from 'events';
+import set from 'lodash.set';
+import get from 'lodash.get';
 
 function isPipeline(ukn: PipeOrPointer): ukn is Pipeline {
   return (<Pipeline>ukn).name !== undefined;
@@ -14,6 +16,8 @@ export class ScrapitoEngine {
 
   readonly template!: Template;
   readonly store = new Map<string | number, unknown>();
+  readonly results = new Map<string | number, unknown>();
+  readonly mappings = new Map<string, string>();
   readonly waitList = new Map<string | number, Pipeline[]>();
   readonly notifier = new EventEmitter();
 
@@ -21,6 +25,7 @@ export class ScrapitoEngine {
     this.template = template;
     this.setSubFields(template.pipelines);
 
+    // Spawn workers
     if (template?.renderJS && process.env.IS_NODE_ENV) {
       this.pool = Pool(
         () =>
@@ -51,9 +56,16 @@ export class ScrapitoEngine {
   private setSubFields(pipelines: PipeOrPointer[], parent?: PipeIdentifier): unknown {
     return pipelines.map((pipe: PipeOrPointer) => {
       if (isPipeline(pipe)) {
+        if (pipe.attribute && pipe.next)
+          throw Error('Pipeline "' + pipe.name + '" cannot have `next` AND `attribute` property.');
         if (parent) pipe.parent = parent;
         if (pipe.timeout === undefined) pipe.timeout = this.template.timeout;
         if (pipe.next) return this.setSubFields(pipe.next, `pipe::${pipe.name}`);
+        // If field is a mapping on url, set map element as waiter
+        if (typeof pipe.url === 'string' && pipe.url?.startsWith('map@')) {
+          if (pipe.wait) pipe.wait.push(`pipe::${pipe.url.slice(4)}`);
+          else pipe.wait = [`pipe::${pipe.url.slice(4)}`];
+        }
       }
       return pipe;
     });
@@ -108,7 +120,7 @@ export class ScrapitoEngine {
    * Push a new pipeline to the pool
    * Also push it's childs into the wait list
    * Use template values or default ones
-   * @param pipe
+   * @param pipe The pipeline to be processed
    * @returns The job created
    */
   private processPipeline(pipe: Pipeline): any {
@@ -126,7 +138,7 @@ export class ScrapitoEngine {
     } else if (pipe.url?.startsWith('map@')) {
       const urls = this.store.get(`pipe::${pipe.url.slice(4)}`) as string[];
       return this.pushManyAndWait(
-        urls.map((url, idx) => ({ ...pipe, url, name: `${pipe.name}-${idx}` }))
+        urls.map((url, idx) => ({ ...pipe, url, name: `${pipe.name}-${idx}`, wait: undefined }))
       );
     }
 
@@ -134,7 +146,7 @@ export class ScrapitoEngine {
   }
 
   /**
-   * Push many jobs and wait for them to finish or fail
+   * Push many jobs to worker processing and wait for them to finish or fail
    */
   protected async pushManyAndWait(pipes: Pipeline[]): Promise<WorkerResult[]> {
     const allJobs = pipes.map((pipe) => this.processPipeline(pipe));
@@ -142,7 +154,7 @@ export class ScrapitoEngine {
   }
 
   /**
-   * Push all pipes into the queue
+   * Push all pipelines into the rpocessing queue
    */
   private async initPipelines(): Promise<void> {
     this.template.pipelines.map((pipe) => {
@@ -158,11 +170,50 @@ export class ScrapitoEngine {
     events.subscribe(this.eventHandler.bind(this), (err) => console.warn('ERROR ::', err));
   }
 
+  /**
+   * Event handle of the processing pool
+   * @param event Pool event
+   */
   private eventHandler(event: PoolEvent<any>) {
     const { returnValue } = event as { returnValue: WorkerResult };
 
     switch (event.type) {
       case 'taskCompleted':
+        if (returnValue.pipe.parent) {
+          const parentMapping = this.mappings.get(returnValue.pipe.parent);
+          // In this case this is for every line of parrent (TODO: find better detection)
+          if (returnValue.pipe.name.match(/.*-\d+$/)) {
+            const id = /-(\d+)$/.exec(returnValue.pipe.name)?.[1];
+            const name = /(.*)(?:-\d+)$/.exec(returnValue.pipe.name)?.[1];
+            if (parentMapping) {
+              this.mappings.set(
+                `pipe::${returnValue.pipe.name}`,
+                `${parentMapping}[${id}].${name}`
+              );
+            } else {
+              const parentMappingId = this.mappings.get(`${returnValue.pipe.parent}[${id}]`);
+              this.mappings.set(`pipe::${returnValue.pipe.name}`, `${parentMappingId}.${name}`);
+            }
+          } else {
+            const value = returnValue.store.get(`pipe::${returnValue.pipe.name}`);
+            if (value instanceof Array) {
+              value.forEach((_, index) => {
+                this.mappings.set(
+                  `pipe::${returnValue.pipe.name}[${index}]`,
+                  `${parentMapping}[${index}].${returnValue.pipe.name}`
+                );
+              });
+            } else {
+              this.mappings.set(
+                `pipe::${returnValue.pipe.name}`,
+                `${parentMapping}.${returnValue.pipe.name}`
+              );
+            }
+          }
+        } else {
+          this.mappings.set(`pipe::${returnValue.pipe.name}`, returnValue.pipe.name);
+        }
+
         // Set each values from the worker store to the main store
         Array.from(returnValue.store.entries()).map(([key, value]) => {
           this.store.set(key, value);
@@ -196,6 +247,21 @@ export class ScrapitoEngine {
       this.notifier.on('done', async () => {
         const store = new Map(this.store);
         await this.cleanEngine();
+
+        console.log(this.mappings);
+
+        const storeObj = Object.fromEntries(store);
+        const resultObj = new Object();
+
+        Array.from(this.mappings.entries()).map(([valuePath, resultPath]) => {
+          // CRITICAL: to fix !!!!!!!!!
+          if (valuePath === 'pipe::get_200_best_models') return;
+          const value = get(storeObj, valuePath);
+          set(resultObj, resultPath, value);
+        });
+
+        console.log(JSON.stringify(resultObj));
+
         resolve(store);
       });
 

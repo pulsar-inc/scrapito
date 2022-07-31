@@ -189,6 +189,7 @@ pipelines:
   - [ ] remove some pipelines of the output
   - [ ] cascade result sharing
   - [ ] map selectors
+  - [x] template element can't have `attribute` and `next` property
 
 # Development
 
@@ -196,3 +197,8 @@ pipelines:
 
 - If you permform some changes in rollup config or package.json run the `npm run refresh` command each time you make a change to be able to test the result properly.
   - It may save you an hour or so ...
+
+
+# Use-cases
+
+- Be able to paste some HTML on a web app, then editor to the right allow you to write the json template.

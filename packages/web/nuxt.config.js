@@ -32,6 +32,10 @@ export default {
     '@nuxtjs/stylelint-module',
     // https://go.nuxtjs.dev/tailwindcss
     '@nuxtjs/tailwindcss',
+    // https://github.com/nuxt-community/svg-sprite-module
+    '@nuxtjs/svg-sprite',
+    // https://github.com/nuxt-community/style-resources-module#readme
+    '@nuxtjs/style-resources',
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -41,6 +45,20 @@ export default {
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
   ],
+
+  // https://github.com/nuxt-community/svg-sprite-module
+  svgSprite: {
+    // manipulate module options
+  },
+
+  // https://github.com/nuxt-community/style-resources-module#readme
+  styleResources: {
+    // your settings here
+    sass: [],
+    scss: ['~/assets/scss/variables.scss'],
+    less: [],
+    stylus: [],
+  },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {},

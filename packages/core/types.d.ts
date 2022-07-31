@@ -17,6 +17,7 @@ export interface Pipeline {
 
   url?: ValueOrPointer | ValueOrPointer[];
 
+  // hideFromOutput?: boolean;
   maxRetries?: number;
   maxThreads?: number;
   attribute?: string;
@@ -25,6 +26,12 @@ export interface Pipeline {
 
   wait?: PipeIdentifier[];
   next?: Pipeline[] | PipeIdentifier[];
+}
+
+export interface ProcessingPipeline extends Pipeline {
+  scaffoldOnly?: boolean;
+  valueIndex?: number;
+  outputPath: string;
 }
 
 export interface Param {
